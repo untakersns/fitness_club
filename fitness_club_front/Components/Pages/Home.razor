@@ -1,0 +1,31 @@
+﻿@page "/"
+@using fitness_club_front.Components.Blocks;
+<body>
+    <div class="container">
+        <!-- Header -->
+        <Header/>
+
+        <div class="main-wrapper">
+            <div class="content-grid">
+                <!-- Sidebar Filters -->
+                <Sidebar/>
+
+                <!-- Main Content -->
+                <div class="main-content">
+                    <!-- Results Info -->
+                    <ResultsHeader/>
+
+                    <!-- session Cards -->
+                    <div class="session-grid">
+                        <FitnessCard/>
+                        <FitnessCard/>
+                        <FitnessCard/>
+                    </div>
+
+                    <!-- Pagination -->
+                    <Pagination/>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>

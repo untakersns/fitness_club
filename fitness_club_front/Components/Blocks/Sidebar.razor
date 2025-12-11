@@ -1,0 +1,118 @@
+﻿<div class="sidebar">
+    <div class="filters-panel">
+        <h2>Фильтры</h2>
+
+        <!-- Trainer Search -->
+        <div class="filter-group">
+            <label>Поиск по тренеру</label>
+            <input type="text" placeholder="Введите название" class="input" />
+        </div>
+
+        <!-- Spec Search -->
+        <div class="filter-group">
+            <label>Поиск по специализации</label>
+            <input type="text" placeholder="Введите специализацию" class="input" />
+        </div>
+
+        <!-- Date Search -->
+        <div class="filter-group">
+            <label>Поиск по дате</label>
+            <input type="datetime" placeholder="Введите начало" class="input" />
+            <input type="datetime" placeholder="Введите конец" class="input" />
+        </div>
+
+        <!-- Price range -->
+        <div class="filter-group">
+            <label>Цена</label>
+            <input type="text" placeholder="Введите минимальную цену" class="input" />
+            <input type="text" placeholder="Введите максимальную цену" class="input" />
+        </div>
+
+        <!-- Type -->
+        <div class="filter-group">
+            <label>Тип</label>
+            <select class="select">
+                <option value="ind">Инидивидуальное</option>
+                <option value="gru">Групповое</option>
+            </select>
+        </div>
+
+        <!-- Difficulty level -->
+        <div class="filter-group">
+            <label>Уровень сложности</label>
+            <select class="select">
+                <option value="eas">Начинающий</option>
+                <option value="med">Средний</option>
+                <option value="adv">Продвинутый</option>
+            </select>
+        </div>
+
+        <!-- Training goal -->
+        <div class="filter-group">
+            <label>Цель тренировки</label>
+            <select class="select">
+                <option value="obs">Общая физподготовка</option>
+                <option value="nab">Набор мышц</option>
+                <option value="poh">Похудение</option>
+            </select>
+        </div>
+
+        <!-- Trainer Rating -->
+        <div class="filter-group">
+            <label>Рейтинг тренера</label>
+            <input type="text" placeholder="Введите минимальный рейтинг" class="input" />
+        </div>
+
+        <!-- Avalnability -->
+        <div class="filter-group">
+            <label>Доступность</label>
+            <label class="checkbox-label">
+                <input type="checkbox" class="checkbox" />
+                <span>Только с свободными местами</span>
+            </label>
+        </div>
+
+        <!-- Number -->
+        <div class="filter-group">
+            <label>Место проведения</label>
+            <select class="select">
+                <option value="zal1">Зал 1</option>
+                <option value="zal2">Зал 2</option>
+                <option value="zal3">Зал 3</option>
+                <option value="zal4">Зал 4</option>
+                <option value="personalz">Персональный зал</option>
+                <option value="box">Боксерский зал</option>
+                <option value="dance">Танцевальный зал</option>
+                <option value="cardio">Кардио-зал</option>
+            </select>
+        </div>
+
+        <!-- Active -->
+        <div class="filter-group">
+            <label class="checkbox-label">
+                <input type="checkbox" class="checkbox" />
+                <span>Тренировка активна</span>
+            </label>
+        </div>
+        <!-- Sort -->
+        <div class="filter-group">
+            <label>Сортировка</label>
+            <select class="select">
+                <option value="name">По названию</option>
+                <option value="price">По цене</option>
+                <option value="rating">По рейтингу</option>
+                <option value="createdat">По дате начала</option>
+                <option value="isavalnable">По доступности мест</option>
+            </select>
+            <label class="checkbox-label">
+                <input type="checkbox" class="checkbox" />
+                <span>По убыванию</span>
+            </label>
+        </div>
+
+        <!-- Reset Button -->
+        <button @click="resetFilters" class="btn btn-secondary">
+            Сбросить фильтры
+        </button>
+    </div>
+</div>
