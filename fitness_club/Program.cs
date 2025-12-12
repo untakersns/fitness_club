@@ -6,8 +6,20 @@ using Microsoft.Extensions.DependencyInjection;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
+
+// CORS: разрешаем фронту (берётся из конфигурации или дефолт)
+var frontendUrl = builder.Configuration["Frontend:BaseUrl"] ?? "http://localhost:5292";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins(frontendUrl)
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? "Host=localhost;Database=FitnessClubAPI;Username=postgres;Password=root";
 builder.Services.AddDbContext<FCDbContext>(options =>
@@ -26,6 +38,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowFrontend");
 
 app.UseAuthorization();
 

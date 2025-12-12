@@ -1,118 +1,223 @@
-﻿<div class="sidebar">
+﻿@using fitness_club_front.Models
+@using Microsoft.AspNetCore.Components
+
+<div class="sidebar">
     <div class="filters-panel">
         <h2>Фильтры</h2>
 
         <!-- Trainer Search -->
         <div class="filter-group">
             <label>Поиск по тренеру</label>
-            <input type="text" placeholder="Введите название" class="input" />
+            <input type="text" placeholder="Введите название" class="input" @bind="trainerSearch" />
         </div>
 
         <!-- Spec Search -->
         <div class="filter-group">
             <label>Поиск по специализации</label>
-            <input type="text" placeholder="Введите специализацию" class="input" />
+            <input type="text" placeholder="Введите специализацию" class="input" @bind="specialization" />
         </div>
 
         <!-- Date Search -->
         <div class="filter-group">
             <label>Поиск по дате</label>
-            <input type="datetime" placeholder="Введите начало" class="input" />
-            <input type="datetime" placeholder="Введите конец" class="input" />
+            <input type="datetime-local" placeholder="Введите начало" class="input" @bind="startFrom" />
+            <input type="datetime-local" placeholder="Введите конец" class="input" @bind="startTo" />
         </div>
 
         <!-- Price range -->
         <div class="filter-group">
             <label>Цена</label>
-            <input type="text" placeholder="Введите минимальную цену" class="input" />
-            <input type="text" placeholder="Введите максимальную цену" class="input" />
+            <input type="text" placeholder="Введите минимальную цену" class="input" @bind="minPrice" />
+            <input type="text" placeholder="Введите максимальную цену" class="input" @bind="maxPrice" />
         </div>
 
         <!-- Type -->
         <div class="filter-group">
             <label>Тип</label>
-            <select class="select">
-                <option value="ind">Инидивидуальное</option>
-                <option value="gru">Групповое</option>
+            <select class="select" @bind="sessionType">
+                <option value="">Любой</option>
+                <option value="Индивидуальная">Индивидуальное</option>
+                <option value="Групповая">Групповое</option>
             </select>
         </div>
 
         <!-- Difficulty level -->
         <div class="filter-group">
             <label>Уровень сложности</label>
-            <select class="select">
-                <option value="eas">Начинающий</option>
-                <option value="med">Средний</option>
-                <option value="adv">Продвинутый</option>
+            <select class="select" @bind="difficultyLevel">
+                <option value="">Любой</option>
+                <option value="Начинающий">Начинающий</option>
+                <option value="Средний">Средний</option>
+                <option value="Продвинутый">Продвинутый</option>
             </select>
         </div>
 
         <!-- Training goal -->
         <div class="filter-group">
             <label>Цель тренировки</label>
-            <select class="select">
-                <option value="obs">Общая физподготовка</option>
-                <option value="nab">Набор мышц</option>
-                <option value="poh">Похудение</option>
+            <select class="select" @bind="fitnessGoal">
+                <option value="">Любая</option>
+                <option value="Общая физподготовка">Общая физподготовка</option>
+                <option value="Набор мышц">Набор мышц</option>
+                <option value="Похудение">Похудение</option>
             </select>
         </div>
 
         <!-- Trainer Rating -->
         <div class="filter-group">
-            <label>Рейтинг тренера</label>
-            <input type="text" placeholder="Введите минимальный рейтинг" class="input" />
+            <label>Рейтинг тренера (мин)</label>
+            <input type="text" placeholder="Введите минимальный рейтинг" class="input" @bind="minTrainerRating" />
         </div>
 
         <!-- Avalnability -->
         <div class="filter-group">
             <label>Доступность</label>
             <label class="checkbox-label">
-                <input type="checkbox" class="checkbox" />
+                <input type="checkbox" class="checkbox" @bind="hasAvailableSpots" />
                 <span>Только с свободными местами</span>
             </label>
         </div>
 
-        <!-- Number -->
+        <!-- Number / Location -->
         <div class="filter-group">
             <label>Место проведения</label>
-            <select class="select">
-                <option value="zal1">Зал 1</option>
-                <option value="zal2">Зал 2</option>
-                <option value="zal3">Зал 3</option>
-                <option value="zal4">Зал 4</option>
-                <option value="personalz">Персональный зал</option>
-                <option value="box">Боксерский зал</option>
-                <option value="dance">Танцевальный зал</option>
-                <option value="cardio">Кардио-зал</option>
+            <select class="select" @bind="location">
+                <option value="">Любое</option>
+                <option value="Зал 1">Зал 1</option>
+                <option value="Зал 2">Зал 2</option>
+                <option value="Зал 3">Зал 3</option>
+                <option value="Зал 4">Зал 4</option>
+                <option value="Персональный зал">Персональный зал</option>
+                <option value="Боксерский зал">Боксерский зал</option>
+                <option value="Танцевальный зал">Танцевальный зал</option>
+                <option value="Кардио-зал">Кардио-зал</option>
             </select>
         </div>
 
         <!-- Active -->
         <div class="filter-group">
             <label class="checkbox-label">
-                <input type="checkbox" class="checkbox" />
+                <input type="checkbox" class="checkbox" @bind="isActive" />
                 <span>Тренировка активна</span>
             </label>
         </div>
+
         <!-- Sort -->
         <div class="filter-group">
             <label>Сортировка</label>
-            <select class="select">
-                <option value="name">По названию</option>
+            <select class="select" @bind="sortBy">
+                <option value="">По умолчанию</option>
+                <option value="sessionname">По названию</option>
                 <option value="price">По цене</option>
                 <option value="rating">По рейтингу</option>
-                <option value="createdat">По дате начала</option>
-                <option value="isavalnable">По доступности мест</option>
+                <option value="starttime">По дате начала</option>
+                <option value="availablespots">По доступности мест</option>
             </select>
             <label class="checkbox-label">
-                <input type="checkbox" class="checkbox" />
+                <input type="checkbox" class="checkbox" @bind="sortDesc" />
                 <span>По убыванию</span>
             </label>
         </div>
 
-        <!-- Reset Button -->
-        <button @click="resetFilters" class="btn btn-secondary">
-            Сбросить фильтры
-        </button>
+        <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+            <button @onclick="ApplyFilters" class="btn btn-primary">Применить</button>
+            <button @onclick="ResetFilters" class="btn btn-secondary">Сбросить фильтры</button>
+        </div>
     </div>
 </div>
+
+@code {
+    [Parameter]
+    public EventCallback<TrainingSessionQuery> OnFiltersChanged { get; set; }
+
+    private string? trainerSearch;
+    private string? specialization;
+    private DateTime? startFrom;
+    private DateTime? startTo;
+    private string? minPrice;
+    private string? maxPrice;
+    private string? sessionType;
+    private string? difficultyLevel;
+    private string? fitnessGoal;
+    private string? minTrainerRating;
+    private bool hasAvailableSpots;
+    private string? location;
+    private bool isActive;
+    private string? sortBy;
+    private bool sortDesc;
+
+    private async Task ApplyFilters()
+    {
+        var q = new TrainingSessionQuery
+        {
+            PageNumber = 1,
+            PageSize = 12
+        };
+
+        if (!string.IsNullOrWhiteSpace(trainerSearch))
+            q.SearchTerm = trainerSearch;
+
+        if (!string.IsNullOrWhiteSpace(specialization))
+            q.Specialization = specialization;
+
+        if (startFrom.HasValue)
+            q.StartTimeFrom = startFrom;
+
+        if (startTo.HasValue)
+            q.StartTimeTo = startTo;
+
+        if (decimal.TryParse(minPrice, out var minP))
+            q.MinPrice = minP;
+
+        if (decimal.TryParse(maxPrice, out var maxP))
+            q.MaxPrice = maxP;
+
+        if (!string.IsNullOrWhiteSpace(sessionType))
+            q.SessionType = sessionType;
+
+        if (!string.IsNullOrWhiteSpace(difficultyLevel))
+            q.DifficultyLevel = difficultyLevel;
+
+        if (!string.IsNullOrWhiteSpace(fitnessGoal))
+            q.FitnessGoal = fitnessGoal;
+
+        if (decimal.TryParse(minTrainerRating, out var minR))
+            q.MinTrainerRating = minR;
+
+        // булевы флаги — передаем напрямую
+        q.HasAvailableSpots = hasAvailableSpots ? true : null;
+        q.IsActive = isActive ? true : null;
+
+        if (!string.IsNullOrWhiteSpace(location))
+            q.Location = location;
+
+        if (!string.IsNullOrWhiteSpace(sortBy))
+            q.SortBy = sortBy;
+
+        q.SortOrder = sortDesc ? "desc" : "asc";
+
+        await OnFiltersChanged.InvokeAsync(q);
+    }
+
+    private async Task ResetFilters()
+    {
+        trainerSearch = null;
+        specialization = null;
+        startFrom = null;
+        startTo = null;
+        minPrice = null;
+        maxPrice = null;
+        sessionType = null;
+        difficultyLevel = null;
+        fitnessGoal = null;
+        minTrainerRating = null;
+        hasAvailableSpots = false;
+        location = null;
+        isActive = false;
+        sortBy = null;
+        sortDesc = false;
+
+        var q = new TrainingSessionQuery { PageNumber = 1, PageSize = 12 };
+        await OnFiltersChanged.InvokeAsync(q);
+    }
+}

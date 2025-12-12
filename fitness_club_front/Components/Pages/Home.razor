@@ -1,31 +1,64 @@
 ﻿@page "/"
-@using fitness_club_front.Components.Blocks;
-<body>
-    <div class="container">
-        <!-- Header -->
-        <Header/>
+@using fitness_club_front.Components.Blocks
+@using fitness_club_front.Models
+@inject fitness_club_front.Services.TrainingSessionService SessionService
 
-        <div class="main-wrapper">
-            <div class="content-grid">
-                <!-- Sidebar Filters -->
-                <Sidebar/>
+<PageTitle>Главная</PageTitle>
 
-                <!-- Main Content -->
-                <div class="main-content">
-                    <!-- Results Info -->
-                    <ResultsHeader/>
+<div class="container">
+    <Header/>
 
-                    <!-- session Cards -->
-                    <div class="session-grid">
-                        <FitnessCard/>
-                        <FitnessCard/>
-                        <FitnessCard/>
-                    </div>
+    <div class="main-wrapper">
+        <div class="content-grid">
+            <Sidebar/>
 
-                    <!-- Pagination -->
-                    <Pagination/>
+            <div class="main-content">
+                <ResultsHeader/>
+
+                <div class="session-grid">
+                    @if (isLoading)
+                    {
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                    }
+                    else if (sessions?.Any() != true)
+                    {
+                        <div class="empty-state">Сессии не найдены.</div>
+                    }
+                    else
+                    {
+                        @foreach (var s in sessions!)
+                        {
+                            <FitnessCard Session="s" />
+                        }
+                    }
                 </div>
+
+                <Pagination/>
             </div>
         </div>
     </div>
-</body>
+</div>
+
+@code {
+    private IEnumerable<TrainingSessionDto>? sessions;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var result = await SessionService.GetSessionsAsync(new TrainingSessionQuery { PageNumber = 1, PageSize = 12 });
+            sessions = result?.Items;
+        }
+        catch (Exception ex)
+        {
+            // можно логировать
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

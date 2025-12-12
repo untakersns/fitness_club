@@ -1,4 +1,7 @@
-﻿<div class="session-card">
+﻿@using fitness_club_front.Models
+
+
+<div class="session-card">
     <!-- Card Image -->
     <div class="session-image">
         <span>🏋️‍</span>
@@ -8,71 +11,72 @@
     <div class="session-body">
         <!-- Title -->
         <h3 class="session-title">
-            Название
+            @Session?.SessionName
         </h3>
 
         <!-- Category Badge -->
         <div class="badge-container">
             <span class="badge">
-                Тип
+                @Session?.SessionType
             </span>
             <span class="badge">
-                Уровень
+                @Session?.DifficultyLevel
             </span>
             <span class="badge">
-                Цель
+                @Session?.FitnessGoal
             </span>
             <span class="badge">
-                Локация
+                @Session?.Location
             </span>
             <span class="badge">
-                Доступность
+                @($"Доступность: {(Session != null && Session.MaxParticipants - Session.CurrentParticipants > 0 ? "Есть места" : "Нет мест" )}")
             </span>
             <span class="badge">
-                Активность
+                @($"Активность: {(Session?.IsActive == true ? "Активна" : "Неактивна")}")
             </span>
         </div>
 
         <!-- Description -->
         <p class="session-description">
-            Описание
+            @Session?.Description
         </p>
 
         <!-- trainer -->
         <div class="trainer-section">
             <p class="trainer-label">
-                Ингредиенты:
+                Тренер:
             </p>
             <p class="trainer-text">
-                Тренер - специализация
+                @($"{Session?.Trainer?.FirstName} {Session?.Trainer?.LastName}")
             </p>
             <p class="trainer-text">
-                Рейтинг тренера
+                Рейтинг: @Session?.Trainer?.Rating
             </p>
         </div>
 
         <!-- Size and Availability -->
         <div class="session-meta">
             <span class="meta-item">
-                🕒 время начала - время конца
+                🕒 @Session?.StartTime.ToLocalTime().ToString("g") — @Session?.EndTime.ToLocalTime().ToString("t")
             </span>
             <span class="meta-item available">
-                ✓ Есть свободные места
-            </span>
-            <span class="meta-item available">
-                ✓ Активна
+                @($"Места: {Session?.CurrentParticipants}/{Session?.MaxParticipants}")
             </span>
         </div>
 
         <!-- Price and Button -->
         <div class="session-footer">
             <div class="session-price">
-                100 ₽
+                @($"{Session?.Price} ₽")
             </div>
             <button class="btn btn-primary">
                 Добавить
             </button>
         </div>
     </div>
-
 </div>
+
+@code {
+    [Parameter]
+    public TrainingSessionDto? Session { get; set; }
+}
