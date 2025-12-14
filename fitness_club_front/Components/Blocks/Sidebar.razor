@@ -121,10 +121,10 @@
         </div>
 
         <div style="display:flex; gap:0.5rem; margin-top:1rem;">
-            <button type="button" @onclick="ApplyFilters" class="btn btn-primary">Применить</button>
-            <button type="button" @onclick="ResetFilters" class="btn btn-secondary">Сбросить фильтры</button>
+            <button @onclick="ApplyFilters" class="btn btn-primary">Применить</button>
+            <button @onclick="ResetFilters" class="btn btn-secondary">Сбросить фильтры</button>
             <!-- тестовая кнопка для отладки -->
-            <button type="button" @onclick="TestInvoke" class="btn btn-outline">Тест</button>
+            <button @onclick="TestInvoke" class="btn btn-outline">Тест</button>
         </div>
 
         <div style="margin-top:0.75rem; font-size:0.875rem; color:#4b5563;">
@@ -246,14 +246,9 @@
         await OnFiltersChanged.InvokeAsync(q);
         Logger.LogInformation("Sidebar: Reset filters invoked OnFiltersChanged.");
     }
-    private async Task TestInvoke()
+    private void TestInvoke()
     {
-        Logger.LogInformation("Sidebar: TestInvoke clicked. HasDelegate={Has}", OnFiltersChanged.HasDelegate);
-        var q = new TrainingSessionQuery { PageNumber = 1, PageSize = 12, SearchTerm = trainerSearch };
-        debugSummary = BuildDebugSummary(q);
-        StateHasChanged();
-        await OnFiltersChanged.InvokeAsync(q);
-        Logger.LogInformation("Sidebar: TestInvoke invoked OnFiltersChanged.");
+        
         Console.WriteLine("TestInvoke completed.");
     }
 
