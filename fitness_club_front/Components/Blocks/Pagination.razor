@@ -1,15 +1,110 @@
-﻿<div class="pagination">
-    <button class="btn btn-primary">
+﻿@using Microsoft.AspNetCore.Components
+
+<div class="pagination" aria-label="Pagination" role="navigation">
+    <button class="btn btn-primary" @onclick="Prev" disabled="@(!CanPrev)">
         ← Предыдущая
     </button>
 
-    <div class="pagination-numbers">
-        <button class="btn btn-active">
-            25
-        </button>
+    <div class="pagination-numbers" style="display:flex; gap:0.25rem; align-items:center;">
+        @if (TotalPages <= 1)
+        {
+            <span class="results-info">Стр. @PageNumber из @TotalPages</span>
+        }
+        else
+        {
+            @foreach (var p in PagesToShow)
+            {
+                if (p == -1)
+                {
+                    <span class="btn btn-outline" style="pointer-events:none; opacity:0.6;">…</span>
+                }
+                else
+                {
+                    <button class="btn @(p == PageNumber ? "btn-active" : "btn-outline")" @onclick="() => GoTo(p)">
+                        @p
+                    </button>
+                }
+            }
+        }
     </div>
 
-    <button class="btn btn-primary">
+    <button class="btn btn-primary" @onclick="Next" disabled="@(!CanNext)">
         Следующая →
     </button>
 </div>
+
+@code {
+    [Parameter]
+    public int PageNumber { get; set; } = 1;
+
+    [Parameter]
+    public int PageSize { get; set; } = 10;
+
+    [Parameter]
+    public int TotalCount { get; set; } = 0;
+
+    [Parameter]
+    public EventCallback<int> OnPageChanged { get; set; }
+
+    private int TotalPages => PageSize > 0 ? (int)Math.Ceiling(TotalCount / (double)PageSize) : 1;
+
+    private bool CanPrev => PageNumber > 1;
+    private bool CanNext => PageNumber < TotalPages;
+
+    private IEnumerable<int> PagesToShow
+    {
+        get
+        {
+            var pages = new List<int>();
+            if (TotalPages <= 7)
+            {
+                for (int i = 1; i <= TotalPages; i++) pages.Add(i);
+                return pages;
+            }
+
+            // show first, maybe gap, window around current, maybe gap, last
+            pages.Add(1);
+
+            var left = Math.Max(2, PageNumber - 2);
+            var right = Math.Min(TotalPages - 1, PageNumber + 2);
+
+            if (left > 2)
+            {
+                pages.Add(-1); // gap
+            }
+
+            for (int i = left; i <= right; i++) pages.Add(i);
+
+            if (right < TotalPages - 1)
+            {
+                pages.Add(-1); // gap
+            }
+
+            pages.Add(TotalPages);
+
+            return pages;
+        }
+    }
+
+    private async Task GoTo(int page)
+    {
+        if (page < 1) page = 1;
+        if (page > TotalPages) page = TotalPages;
+        if (page == PageNumber) return;
+
+        PageNumber = page;
+        await OnPageChanged.InvokeAsync(page);
+    }
+
+    private async Task Prev()
+    {
+        if (!CanPrev) return;
+        await GoTo(PageNumber - 1);
+    }
+
+    private async Task Next()
+    {
+        if (!CanNext) return;
+        await GoTo(PageNumber + 1);
+    }
+}

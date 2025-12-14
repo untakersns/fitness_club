@@ -1,15 +1,37 @@
-﻿<div class="results-header">
+﻿@using Microsoft.AspNetCore.Components
+
+<div class="results-header">
     <div class="results-info">
         <span>
-            Найдено: 100
+            Найдено: @TotalCount
         </span>
     </div>
     <div class="page-size-selector">
         <span>На странице:</span>
-        <select class="select">
-            <option :value="10">10</option>
-            <option :value="20">20</option>
-            <option :value="50">50</option>
+        <select class="select" value="@PageSize" @onchange="OnPageSizeSelect">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
         </select>
     </div>
 </div>
+
+@code {
+    [Parameter]
+    public int TotalCount { get; set; }
+
+    [Parameter]
+    public int PageSize { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnPageSizeChanged { get; set; }
+
+    private async Task OnPageSizeSelect(ChangeEventArgs e)
+    {
+        if (e?.Value is null) return;
+        if (int.TryParse(e.Value.ToString(), out var newSize) && newSize != PageSize)
+        {
+            await OnPageSizeChanged.InvokeAsync(newSize);
+        }
+    }
+}

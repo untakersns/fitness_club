@@ -2,6 +2,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Web;
+using System.Globalization;
 using fitness_club_front.Models;
 using Microsoft.Extensions.Logging;
 
@@ -29,6 +30,8 @@ namespace fitness_club_front.Services
                 var qs = QueryStringFrom(query);
                 if (!string.IsNullOrEmpty(qs)) uri += "?" + qs;
             }
+
+            _logger.LogInformation("TrainingSessionService: Sending GET {Uri}", uri);
 
             try
             {
@@ -76,17 +79,38 @@ namespace fitness_club_front.Services
             }
         }
 
+        // Полное формирование query string из всех полей TrainingSessionQuery
         private static string QueryStringFrom(TrainingSessionQuery q)
         {
             var col = HttpUtility.ParseQueryString(string.Empty);
+            var culture = CultureInfo.InvariantCulture;
+
             if (!string.IsNullOrWhiteSpace(q.SearchTerm)) col["SearchTerm"] = q.SearchTerm;
-            if (q.PageNumber != 0) col["PageNumber"] = q.PageNumber.ToString();
-            if (q.PageSize != 0) col["PageSize"] = q.PageSize.ToString();
-            if (q.TrainerId.HasValue) col["TrainerId"] = q.TrainerId.Value.ToString();
+            if (q.PageNumber != 0) col["PageNumber"] = q.PageNumber.ToString(culture);
+            if (q.PageSize != 0) col["PageSize"] = q.PageSize.ToString(culture);
+            if (q.TrainerId.HasValue) col["TrainerId"] = q.TrainerId.Value.ToString(culture);
             if (!string.IsNullOrWhiteSpace(q.Specialization)) col["Specialization"] = q.Specialization;
+
+            if (q.StartTimeFrom.HasValue) col["StartTimeFrom"] = q.StartTimeFrom.Value.ToString("o", culture);
+            if (q.StartTimeTo.HasValue) col["StartTimeTo"] = q.StartTimeTo.Value.ToString("o", culture);
+            if (q.StartTimeHour.HasValue) col["StartTimeHour"] = q.StartTimeHour.Value.ToString(culture);
+
+            if (q.MinPrice.HasValue) col["MinPrice"] = q.MinPrice.Value.ToString(culture);
+            if (q.MaxPrice.HasValue) col["MaxPrice"] = q.MaxPrice.Value.ToString(culture);
+
             if (!string.IsNullOrWhiteSpace(q.SessionType)) col["SessionType"] = q.SessionType;
+            if (!string.IsNullOrWhiteSpace(q.DifficultyLevel)) col["DifficultyLevel"] = q.DifficultyLevel;
+            if (!string.IsNullOrWhiteSpace(q.FitnessGoal)) col["FitnessGoal"] = q.FitnessGoal;
+
+            if (q.MinTrainerRating.HasValue) col["MinTrainerRating"] = q.MinTrainerRating.Value.ToString(culture);
+            if (q.HasAvailableSpots.HasValue) col["HasAvailableSpots"] = q.HasAvailableSpots.Value ? "true" : "false";
+
+            if (!string.IsNullOrWhiteSpace(q.Location)) col["Location"] = q.Location;
+            if (q.IsActive.HasValue) col["IsActive"] = q.IsActive.Value ? "true" : "false";
+
             if (!string.IsNullOrWhiteSpace(q.SortBy)) col["SortBy"] = q.SortBy;
             if (!string.IsNullOrWhiteSpace(q.SortOrder)) col["SortOrder"] = q.SortOrder;
+
             return col.ToString();
         }
     }

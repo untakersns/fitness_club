@@ -1,5 +1,6 @@
 ﻿@using fitness_club_front.Models
 @using Microsoft.AspNetCore.Components
+@inject ILogger<Sidebar> Logger
 
 <div class="sidebar">
     <div class="filters-panel">
@@ -120,8 +121,15 @@
         </div>
 
         <div style="display:flex; gap:0.5rem; margin-top:1rem;">
-            <button @onclick="ApplyFilters" class="btn btn-primary">Применить</button>
-            <button @onclick="ResetFilters" class="btn btn-secondary">Сбросить фильтры</button>
+            <button type="button" @onclick="ApplyFilters" class="btn btn-primary">Применить</button>
+            <button type="button" @onclick="ResetFilters" class="btn btn-secondary">Сбросить фильтры</button>
+            <!-- тестовая кнопка для отладки -->
+            <button type="button" @onclick="TestInvoke" class="btn btn-outline">Тест</button>
+        </div>
+
+        <div style="margin-top:0.75rem; font-size:0.875rem; color:#4b5563;">
+            <div>Последний применённый фильтр:</div>
+            <pre style="white-space:pre-wrap;">@debugSummary</pre>
         </div>
     </div>
 </div>
@@ -146,8 +154,12 @@
     private string? sortBy;
     private bool sortDesc;
 
+    private string debugSummary = "(пусто)";
+
     private async Task ApplyFilters()
     {
+        Logger.LogInformation("Sidebar: ApplyFilters invoked. HasDelegate={Has}", OnFiltersChanged.HasDelegate);
+
         var q = new TrainingSessionQuery
         {
             PageNumber = 1,
@@ -184,7 +196,6 @@
         if (decimal.TryParse(minTrainerRating, out var minR))
             q.MinTrainerRating = minR;
 
-        // булевы флаги — передаем напрямую
         q.HasAvailableSpots = hasAvailableSpots ? true : null;
         q.IsActive = isActive ? true : null;
 
@@ -196,11 +207,22 @@
 
         q.SortOrder = sortDesc ? "desc" : "asc";
 
+        debugSummary = BuildDebugSummary(q);
+        StateHasChanged();
+
+        if (!OnFiltersChanged.HasDelegate)
+        {
+            Logger.LogWarning("Sidebar: OnFiltersChanged has no delegate.");
+        }
+
         await OnFiltersChanged.InvokeAsync(q);
+        Logger.LogInformation("Sidebar: OnFiltersChanged invoked.");
     }
 
     private async Task ResetFilters()
     {
+        Logger.LogInformation("Sidebar: ResetFilters invoked.");
+
         trainerSearch = null;
         specialization = null;
         startFrom = null;
@@ -218,6 +240,25 @@
         sortDesc = false;
 
         var q = new TrainingSessionQuery { PageNumber = 1, PageSize = 12 };
+        debugSummary = BuildDebugSummary(q);
+        StateHasChanged();
+
         await OnFiltersChanged.InvokeAsync(q);
+        Logger.LogInformation("Sidebar: Reset filters invoked OnFiltersChanged.");
+    }
+    private async Task TestInvoke()
+    {
+        Logger.LogInformation("Sidebar: TestInvoke clicked. HasDelegate={Has}", OnFiltersChanged.HasDelegate);
+        var q = new TrainingSessionQuery { PageNumber = 1, PageSize = 12, SearchTerm = trainerSearch };
+        debugSummary = BuildDebugSummary(q);
+        StateHasChanged();
+        await OnFiltersChanged.InvokeAsync(q);
+        Logger.LogInformation("Sidebar: TestInvoke invoked OnFiltersChanged.");
+        Console.WriteLine("TestInvoke completed.");
+    }
+
+    private static string BuildDebugSummary(TrainingSessionQuery q)
+    {
+        return $"SearchTerm: {q.SearchTerm}\nSpecialization: {q.Specialization}\nStartFrom: {q.StartTimeFrom}\nStartTo: {q.StartTimeTo}\nMinPrice: {q.MinPrice}\nMaxPrice: {q.MaxPrice}\nSessionType: {q.SessionType}\nDifficulty: {q.DifficultyLevel}\nFitnessGoal: {q.FitnessGoal}\nMinTrainerRating: {q.MinTrainerRating}\nHasAvailableSpots: {q.HasAvailableSpots}\nLocation: {q.Location}\nIsActive: {q.IsActive}\nSortBy: {q.SortBy}\nSortOrder: {q.SortOrder}\nPageSize: {q.PageSize}";
     }
 }

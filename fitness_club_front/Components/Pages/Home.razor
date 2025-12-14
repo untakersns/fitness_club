@@ -10,10 +10,10 @@
 
     <div class="main-wrapper">
         <div class="content-grid">
-            <Sidebar/>
+            <Sidebar OnFiltersChanged="OnFiltersChangedAsync"/>
 
             <div class="main-content">
-                <ResultsHeader/>
+                <ResultsHeader TotalCount="totalCount" PageSize="currentQuery.PageSize" OnPageSizeChanged="OnPageSizeChangedAsync"/>
 
                 <div class="session-grid">
                     @if (isLoading)
@@ -35,7 +35,7 @@
                     }
                 </div>
 
-                <Pagination/>
+                <Pagination PageNumber="currentQuery.PageNumber" PageSize="currentQuery.PageSize" TotalCount="totalCount" OnPageChanged="OnPageChangedAsync" />
             </div>
         </div>
     </div>
@@ -44,21 +44,60 @@
 @code {
     private IEnumerable<TrainingSessionDto>? sessions;
     private bool isLoading = true;
+    private TrainingSessionQuery currentQuery = new() { PageNumber = 1, PageSize = 12 };
+    private int totalCount;
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadSessionsAsync(currentQuery);
+    }
+
+    private async Task OnFiltersChangedAsync(TrainingSessionQuery query)
+    {
+        currentQuery = query ?? new TrainingSessionQuery { PageNumber = 1, PageSize = 12 };
+        // ensure page number is valid when filters change
+        currentQuery.PageNumber = 1;
+        await LoadSessionsAsync(currentQuery);
+    }
+
+    private async Task OnPageSizeChangedAsync(int newSize)
+    {
+        currentQuery.PageSize = newSize;
+        currentQuery.PageNumber = 1;
+        await LoadSessionsAsync(currentQuery);
+    }
+
+    private async Task OnPageChangedAsync(int newPage)
+    {
+        currentQuery.PageNumber = newPage;
+        await LoadSessionsAsync(currentQuery);
+    }
+
+    private async Task LoadSessionsAsync(TrainingSessionQuery query)
+    {
+        isLoading = true;
         try
         {
-            var result = await SessionService.GetSessionsAsync(new TrainingSessionQuery { PageNumber = 1, PageSize = 12 });
-            sessions = result?.Items;
+            var result = await SessionService.GetSessionsAsync(query);
+            sessions = result?.Items ?? Enumerable.Empty<TrainingSessionDto>();
+            totalCount = result?.TotalCount ?? 0;
+            var totalPages = query.PageSize > 0 ? (int)Math.Ceiling(totalCount / (double)query.PageSize) : 1;
+            if (query.PageNumber > totalPages && totalPages > 0)
+            {
+                currentQuery.PageNumber = totalPages;
+                var retry = await SessionService.GetSessionsAsync(currentQuery);
+                sessions = retry?.Items ?? Enumerable.Empty<TrainingSessionDto>();
+            }
         }
-        catch (Exception ex)
+        catch
         {
-            // можно логировать
+            sessions = Enumerable.Empty<TrainingSessionDto>();
+            totalCount = 0;
         }
         finally
         {
             isLoading = false;
+            StateHasChanged();
         }
     }
 }
