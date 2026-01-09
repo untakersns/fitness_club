@@ -1,0 +1,67 @@
+@page "/login"
+@using fitness_club_front.Models
+@inject fitness_club_front.Services.AuthService Auth
+@inject NavigationManager Nav
+
+<PageTitle>Вход</PageTitle>
+
+<div class="main-wrapper" style="max-width:600px; margin:1rem auto;">
+    <h2>Вход</h2>
+
+    <div class="filters-panel">
+        <div class="filter-group">
+            <label>Email</label>
+            <input class="input" @bind="email" />
+        </div>
+        <div class="filter-group">
+            <label>Пароль</label>
+            <input type="password" class="input" @bind="password" />
+        </div>
+
+        <div style="display:flex; gap:0.5rem;">
+            <button class="btn btn-primary" @onclick="HandleLogin">Войти</button>
+            <button class="btn btn-secondary" @onclick="GoToRegister">Регистрация</button>
+            <button class="btn btn-outline" @onclick="GoToHome">На главную</button>
+        </div>
+
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div style="margin-top:1rem; color:@(success? "green":"red");">@message</div>
+        }
+    </div>
+</div>
+
+@code {
+    private string email = "";
+    private string password = "";
+    private string? message;
+    private bool success;
+
+    private async Task HandleLogin()
+    {
+        message = null;
+        var req = new LoginRequest { Email = email, Password = password };
+        var ok = await Auth.LoginAsync(req);
+        if (ok)
+        {
+            success = true;
+            message = "Успешно.";
+            Nav.NavigateTo("/profile", forceLoad: false);
+        }
+        else
+        {
+            success = false;
+            message = "Не удалось войти. Проверьте логин/пароль.";
+        }
+    }
+
+    private void GoToRegister()
+    {
+        Nav.NavigateTo("/register");
+    }
+
+    private void GoToHome()
+    {
+        Nav.NavigateTo("/");
+    }
+}

@@ -1,0 +1,85 @@
+﻿@page "/profile"
+@using Microsoft.AspNetCore.Components.Authorization
+@using fitness_club_front.Models
+@inject fitness_club_front.Services.AuthService Auth
+@inject NavigationManager Nav
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>Профиль</PageTitle>
+
+<div class="main-wrapper" style="max-width:800px; margin:1rem auto;">
+    <h2>Профиль пользователя</h2>
+
+    @if (isLoading)
+    {
+        <div>Загрузка...</div>
+    }
+    else if (user == null)
+    {
+        <div>
+            Не авторизован. <a @onclick="GoToLogin" style="cursor:pointer; color:var(--primary-color);">Вход</a>
+            <div style="margin-top:0.5rem;">
+                <button class="btn btn-outline" @onclick="GoToHome">На главную</button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="filters-panel">
+            <div><strong>Имя:</strong> @user.FirstName</div>
+            <div><strong>Фамилия:</strong> @user.LastName</div>
+            <div><strong>Email:</strong> @user.Email</div>
+            <div><strong>Баланс:</strong> @user.Balance ₽</div>
+
+            <div style="margin-top:1rem; display:flex; gap:0.5rem;">
+                <button class="btn btn-primary" @onclick="HandleRefresh">Обновить</button>
+                <button class="btn btn-secondary" @onclick="HandleLogout">Выйти</button>
+                <button class="btn btn-outline" @onclick="GoToHome">На главную</button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private UserProfileDto? user;
+    private bool isLoading = true;
+    private bool _loadedOnce = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_loadedOnce)
+        {
+            _loadedOnce = true;
+            await LoadUserAsync();
+        }
+    }
+
+    private async Task LoadUserAsync()
+    {
+        isLoading = true;
+        user = await Auth.GetCurrentUserAsync();
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task HandleRefresh()
+    {
+        await LoadUserAsync();
+    }
+
+    private async Task HandleLogout()
+    {
+        await Auth.LogoutAsync();
+        Nav.NavigateTo("/login", forceLoad: true);
+    }
+
+    private void GoToLogin()
+    {
+        Nav.NavigateTo("/login");
+    }
+
+    private void GoToHome()
+    {
+        Nav.NavigateTo("/");
+    }
+}

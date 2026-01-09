@@ -55,7 +55,6 @@
     private async Task OnFiltersChangedAsync(TrainingSessionQuery query)
     {
         currentQuery = query ?? new TrainingSessionQuery { PageNumber = 1, PageSize = 12 };
-        // ensure page number is valid when filters change
         currentQuery.PageNumber = 1;
         await LoadSessionsAsync(currentQuery);
     }

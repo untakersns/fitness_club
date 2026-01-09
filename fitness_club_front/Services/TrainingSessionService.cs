@@ -79,7 +79,6 @@ namespace fitness_club_front.Services
             }
         }
 
-        // Полное формирование query string из всех полей TrainingSessionQuery
         private static string QueryStringFrom(TrainingSessionQuery q)
         {
             var col = HttpUtility.ParseQueryString(string.Empty);

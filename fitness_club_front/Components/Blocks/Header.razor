@@ -1,5 +1,71 @@
-﻿<div class="header">
-    <div class="header-content">
-        <h1>🏋️‍ Спортивный клуб</h1>
+﻿@using fitness_club_front.Models
+@inject NavigationManager Nav
+@inject fitness_club_front.Services.AuthService Auth
+
+<div class="header">
+    <div class="header-content" style="display:flex; align-items:center; justify-content:space-between;">
+        <div style="display:flex; gap:1rem; align-items:center;">
+            <h1 style="margin:0; cursor:pointer;" @onclick="GoTo">🏋️‍ Спортивный клуб</h1>
+            <nav style="display:flex; gap:0.5rem; align-items:center;">
+                <a class="btn btn-outline" href="/">Главная</a>
+                @if (!isAuthenticated)
+                {
+                    <a class="btn btn-outline" href="/register">Регистрация</a>
+                    <a class="btn btn-outline" href="/login">Вход</a>
+                }
+                else
+                {
+                    <a class="btn btn-outline" href="/profile">Профиль</a>
+                }
+            </nav>
+        </div>
+
+        <div>
+            @if (isLoading)
+            {
+                <span>Загрузка...</span>
+            }
+            else if (isAuthenticated && user != null)
+            {
+                <span style="margin-right:0.75rem;">@user.FirstName @user.LastName</span>
+                <button class="btn btn-secondary" @onclick="HandleLogout">Выйти</button>
+            }
+        </div>
     </div>
 </div>
+
+@code {
+    private bool isAuthenticated;
+    private bool isLoading = true;
+    private UserProfileDto? user;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await UpdateStateAsync();
+        }
+    }
+
+    public void GoTo()
+    {
+        Nav.NavigateTo("/");
+    }
+    private async Task UpdateStateAsync()
+    {
+        isLoading = true;
+        isAuthenticated = await Auth.IsAuthenticatedAsync();
+        user = isAuthenticated ? await Auth.GetCurrentUserAsync() : null;
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task HandleLogout()
+    {
+        await Auth.LogoutAsync();
+        isAuthenticated = false;
+        user = null;
+        // navigate to login and force reload to clear state
+        Nav.NavigateTo("/login", forceLoad: true);
+    }
+}

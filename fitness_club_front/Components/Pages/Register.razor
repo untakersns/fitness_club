@@ -1,0 +1,81 @@
+@page "/register"
+@using fitness_club_front.Models
+@inject fitness_club_front.Services.AuthService Auth
+@inject NavigationManager Nav
+
+<PageTitle>Регистрация</PageTitle>
+
+<div class="main-wrapper" style="max-width:600px; margin:1rem auto;">
+    <h2>Регистрация</h2>
+
+    <div class="filters-panel">
+        <div class="filter-group">
+            <label>Email</label>
+            <input class="input" @bind="email" />
+        </div>
+        <div class="filter-group">
+            <label>Имя</label>
+            <input class="input" @bind="firstName" />
+        </div>
+        <div class="filter-group">
+            <label>Фамилия</label>
+            <input class="input" @bind="lastName" />
+        </div>
+        <div class="filter-group">
+            <label>Пароль</label>
+            <input type="password" class="input" @bind="password" />
+        </div>
+
+        <div style="display:flex; gap:0.5rem;">
+            <button class="btn btn-primary" @onclick="HandleRegister" disabled="@isBusy">Зарегистрироваться</button>
+            <button class="btn btn-secondary" @onclick="GoToLogin">Вход</button>
+            <button class="btn btn-outline" @onclick="GoToHome">На главную</button>
+        </div>
+
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div style="margin-top:1rem; color:@(success? "green":"red");">@message</div>
+        }
+    </div>
+</div>
+
+@code {
+    private string email = "";
+    private string password = "";
+    private string firstName = "";
+    private string lastName = "";
+    private string? message;
+    private bool success;
+    private bool isBusy;
+
+    private async Task HandleRegister()
+    {
+        message = null;
+        isBusy = true;
+        var req = new RegisterRequest { Email = email, Password = password, FirstName = firstName, LastName = lastName };
+        var (ok, err) = await Auth.RegisterWithErrorAsync(req);
+        if (ok)
+        {
+            success = true;
+            message = "Успешно. Перенаправляю на вход...";
+            await Task.Delay(800);
+            Nav.NavigateTo("/login");
+        }
+        else
+        {
+            success = false;
+            message = err ?? "Регистрация не удалась.";
+        }
+        isBusy = false;
+    }
+
+    private void GoToLogin()
+    {
+        Nav.NavigateTo("/login");
+    }
+
+    private void GoToHome()
+    {
+        Nav.NavigateTo("/");
+    }
+}
